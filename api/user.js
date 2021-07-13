@@ -34,3 +34,18 @@ export const profile=username=>{
   })
 }
 
+//follow 
+export const follow=username=>{
+  return request({
+    method:"POST",
+    url:`api/profiles/${username}/follow`
+  })
+}
+//unfollow
+export const unfollow=username=>{
+  return request({
+    method:"DELETE",
+    url:`api/profiles/${username}/follow`
+  })
+}
+

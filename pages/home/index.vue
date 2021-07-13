@@ -56,58 +56,15 @@
               </li>
             </ul>
           </div>
-          <div
-            class="article-preview"
+          
+          <artilce-preview 
             v-for="article in articles"
             :key="article.slug"
-          >
-            <div class="article-meta">
-              <nuxt-link
-                :to="{
-                  name: 'profile',
-                  params: {
-                    username: article.author.username,
-                  },
-                }"
-                ><img :src="article.author.image" />
-              </nuxt-link>
-              <div class="info">
-                <nuxt-link
-                  :to="{
-                    name: 'profile',
-                    params: {
-                      username: article.author.username,
-                    },
-                  }"
-                  class="author"
-                  >{{ article.author.username }}
-                </nuxt-link>
-                <span class="date">{{ article.createdAt | date('MMM DD, YYYY') }}</span>
-              </div>
-              <button
-                class="btn btn-outline-primary btn-sm pull-xs-right"
-                :class="{ active: article.favorited }"
-                @click="onFavorite(article)"
-                :disabled="article.favoriteDisabled"
-              >
-                <i class="ion-heart"></i>
-                {{ article.favoritesCount }}
-              </button>
-            </div>
-            <nuxt-link
-              :to="{
-                name: 'article',
-                params: {
-                  slug: article.slug,
-                },
-              }"
-              class="preview-link"
-            >
-              <h1>{{ article.title }}</h1>
-              <p>{{ article.description }}</p>
-              <span>Read more...</span>
-            </nuxt-link>
-          </div>
+            :article="article"
+            @onFavorite="onFavorite(article)"
+          />
+
+
           <!-- 分页列表 -->
           <nav>
             <ul class="pagination">
@@ -163,7 +120,9 @@ import {
  } from "@/api/article";
 import { getTags } from "@/api/tag";
 import {mapState} from "vuex"
+import artilcePreview from '@/components/artilce-preview';
 export default {
+  components: { artilcePreview },
   name: "HomeIndex",
   async asyncData({ query,store }) {
     const page = Number.parseInt(query.page || 1);
@@ -205,6 +164,7 @@ export default {
   },
   methods:{
     async onFavorite(article){
+      console.log("onFavorite 222",article)
       //没有登录时，点赞自动跳转到登录
       if(!this.$store.user){
         this.$router.push({
@@ -212,6 +172,8 @@ export default {
         })
         return
       }
+
+      console.log("onFavorite 333",article)
 
       article.favoriteDisabled=true
       if(article.favorited){
