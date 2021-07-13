@@ -4,13 +4,15 @@
       <div class="container">
         <div class="row">
           <div class="col-xs-12 col-md-10 offset-md-1">
-            <img src="http://i.imgur.com/Qr71crq.jpg" class="user-img" />
-            <h4>Eric Simons</h4>
+            <img :src="target.image" class="user-img" />
+            <h4>{{target.username}}</h4>
             <p>
-              Cofounder @GoThinkster, lived in Aol's HQ for a few months, kinda
-              looks like Peeta from the Hunger Games
+              {{target.bio}}
             </p>
-            <button class="btn btn-sm btn-outline-secondary action-btn">
+            <button class="btn btn-sm btn-outline-secondary action-btn"
+              
+              /////////todo
+            >
               <i class="ion-plus-round"></i> &nbsp; Follow Eric Simons
             </button>
           </div>
@@ -81,15 +83,28 @@
 import {profile} from "@/api/user"
 export default {
   name:"UserProfile",
+
   async asyncData({params}){
     console.log(params)
     let username=params.username
     let {data} =await profile(username)
-    
-    \
+    console.log(data)
     ///todo
-  },
 
+    return {
+      target:{
+        username:data.profile?.username,
+        bio:data.profile?.bio,
+        image:data.profile?.image,
+        following:data.profile?.following
+      }
+    }
+  },
+  computed:{
+    isSelf(){
+      return this.$store.user && this.$store.user.username===this.target.username
+    }
+  }
 };
 </script>
 
