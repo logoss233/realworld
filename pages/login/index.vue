@@ -90,15 +90,12 @@ export default {
           user:this.user
         })
       
-        console.log(data);
         //todo: 保存用户的登录状态
         this.$store.commit("setUser",data.user)
         Cookie.set("user",data.user)
         //跳转到首页
         this.$router.push("/")
       } catch (err) {
-        console.log("请求失败", err)
-        console.dir(err)
         this.errors = err?.response?.data?.errors
       }
     },

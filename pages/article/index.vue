@@ -3,16 +3,20 @@
     <div class="banner">
       <div class="container">
         <h1>{{article.title}}</h1>
-        <article-meta :article="article" />
+        <article-meta :article="article" @updateFollow="updateFollow" 
+          @updateFavorited="updateFavorited"
+        />
       </div>
     </div>
     <div class="container page">
       <div class="row article-content">
-        <div class="col-md-12" v-html="article.body"></div>
+        <div class="col-md-12" v-html="article.htmlbody"></div>
       </div>
       <hr />
       <div class="article-actions">
-        <article-meta :article="article" />
+        <article-meta :article="article" @updateFollow="updateFollow"
+          @updateFavorited="updateFavorited"
+        />
       </div>
       <div class="row">
         <div class="col-xs-12 col-md-8 offset-md-2">
@@ -35,7 +39,7 @@ export default {
     const {data} =await getArticle(params.slug)
     const {article} =data
     const md=new MarkdownIt()
-    article.body=md.render(article.body)
+    article.htmlbody=md.render(article.body)
     return {
       article
     }
@@ -51,6 +55,15 @@ export default {
         {hid:"description",name:"description",
         content:this.article.description}
       ]
+    }
+  },
+  methods:{
+    updateFollow(isFollow){
+      this.article.author.following=isFollow
+    },
+    updateFavorited(favorited,favoritesCount){
+      this.article.favorited=favorited
+      this.article.favoritesCount=favoritesCount
     }
   }
 };
