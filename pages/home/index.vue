@@ -57,7 +57,7 @@
             </ul>
           </div>
           
-          <artilce-preview 
+          <article-preview 
             v-for="article in articles"
             :key="article.slug"
             :article="article"
@@ -120,9 +120,9 @@ import {
  } from "@/api/article";
 import { getTags } from "@/api/tag";
 import {mapState} from "vuex"
-import artilcePreview from '@/components/artilce-preview';
+import articlePreview from '@/components/article-preview';
 export default {
-  components: { artilcePreview },
+  components: { articlePreview },
   name: "HomeIndex",
   async asyncData({ query,store }) {
     const page = Number.parseInt(query.page || 1);
@@ -164,26 +164,23 @@ export default {
   },
   methods:{
     async onFavorite(article){
-      console.log("onFavorite 222",article)
       //没有登录时，点赞自动跳转到登录
-      if(!this.$store.user){
+      if(!this.$store.state.user){
         this.$router.push({
           name:"login"
         })
         return
       }
 
-      console.log("onFavorite 333",article)
-
       article.favoriteDisabled=true
       if(article.favorited){
-        await deleteFavorite(article.slug)
-        article.favorited=false
-        article.favoritesCount-=1
+        const {data}=await deleteFavorite(article.slug)
+        article.favorited=data.article?.favorited
+        article.favoritesCount=data.article?.favoritesCount
       }else{
-        await addFavorite(article.slug)
-        article.favorited=true
-        article.favoritesCount+=1
+        const {data}=await addFavorite(article.slug)
+        article.favorited=data.article?.favorited
+        article.favoritesCount=data.article?.favoritesCount
       }
       article.favoriteDisabled=false
     }

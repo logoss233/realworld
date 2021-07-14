@@ -30,7 +30,7 @@
                     active:tab==='my'
                   }"
                   :to="{
-                    name:'profile',
+                    name:'profile', 
                     params:{
                       username:target.username
                     },
@@ -60,24 +60,37 @@
               </li>
             </ul>
           </div>
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href=""><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Eric Simons</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 29
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>How to build webapps that scale</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-            </a>
-          </div>
-          
+          <articlePreview
+            v-for="article in articles"
+            :key="article.slug"
+            :article="article"
+            @onFavorite="onFavorite(article)"
+           />
+
+          <!-- 分页列表 -->
+          <nav>
+            <ul class="pagination">
+              <li class="page-item ng-scope"
+                :class="{active:page==item}"
+                v-for="item in totalPage"
+                :key="item"
+              >
+                <nuxt-link class="page-link ng-binding"
+                 :to="{
+                   name:'profile',
+                    params:{
+                      username:target.username
+                    },
+                    query:{
+                      tab:tab,
+                      page:item
+                    },
+                 }"
+                 >{{item}}</nuxt-link>
+              </li>
+            </ul>
+          </nav>
+
         </div>
       </div>
     </div>
@@ -86,31 +99,59 @@
 
 <script>
 import {profile,follow,unfollow} from "@/api/user"
-import {getArticles} from "@/api/article"
+import { 
+  getArticles,
+  addFavorite,
+  deleteFavorite
+ } from "@/api/article";
+import articlePreview from '@/components/article-preview.vue';
 export default {
+  components: { articlePreview },
   name:"UserProfile",
   async asyncData({params,query}){
     let username=params.username
     const tab=query.tab || "my"
+    const page=query.page || 1
+    const limit=5
 
-    let {data} =await profile(username)
-    
-    let {data:articleData}=await getArticles({
-      author:username,
-      limit:5,
-      offset:0
+    let getArticlePromise
+    if(tab=="my"){
+      getArticlePromise=getArticles({
+        author:username,
+        limit:5,
+        offset:(page-1)*limit
+      })
+    }else{
+      getArticlePromise=getArticles({
+        favorited:username,
+        limit:5,
+        offset:(page-1)*limit
+      })
+    }
+
+
+    const [{data},{data:articleData}]=await Promise.all([
+      profile(username),
+      getArticlePromise,
+    ])
+    const {articles}=articleData
+
+    articles.forEach(article=>{
+      article.favoriteDisabled=false //处理点赞时 不让文章重复点赞
     })
-    console.log("articleData",articleData)
 
     return {
       tab,
+      page,
+      limit,
       target:{
         username:data.profile?.username,
         bio:data.profile?.bio,
         image:data.profile?.image,
         following:data.profile?.following
       },
-     
+      articles,
+      articlesCount:articleData.articlesCount,
     }
   },
   data(){
@@ -119,6 +160,9 @@ export default {
     }
   },
   computed:{
+    totalPage(){
+      return Math.ceil(this.articlesCount/this.limit)
+    },
     isSelf(){
       return this.$store.state.user && this.$store.state.user.username===this.target.username
     },
@@ -160,9 +204,30 @@ export default {
         this.target.following=data.profile?.following
       }
       this.followDisabled=false
+    },
+    async onFavorite(article){
+      //没有登录时，点赞自动跳转到登录
+      if(!this.$store.state.user){
+        this.$router.push({
+          name:"login"
+        })
+        return
+      }
+
+      article.favoriteDisabled=true
+      if(article.favorited){
+        const {data}=await deleteFavorite(article.slug)
+        article.favorited=data.article?.favorited
+        article.favoritesCount=data.article?.favoritesCount
+      }else{
+        const {data}=await addFavorite(article.slug)
+        article.favorited=data.article?.favorited
+        article.favoritesCount=data.article?.favoritesCount
+      }
+      article.favoriteDisabled=false
     }
   },
-  watchQuery:["tab"]
+  watchQuery:["tab","page"]
 };
 
 </script>
