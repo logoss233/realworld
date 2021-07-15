@@ -57,4 +57,8 @@ jobs:
           wget https://github.com/logoss233/realworld/releases/latest/download/release.tgz -O release.tgz
           tar zxvf release.tgz
           npm install --production
+<<<<<<< HEAD
           pm2 reload pm2.config.json
+=======
+          pm2 reload pm2.config.js
+>>>>>>> 34d06a0474970a8f08f88edd50acd1a39d4c1d7b
