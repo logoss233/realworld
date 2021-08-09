@@ -16,7 +16,7 @@ export const register=data=>{
     url:"/api/users",
     data
   })
-}
+} 
 
 //更新用户设置
 export const updateSetting=data=>{
