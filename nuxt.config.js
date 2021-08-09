@@ -42,7 +42,7 @@ module.exports={
               component:resolve(__dirname,"pages/article/")
             },
           ]
-        }
+        } 
       ])
     }
   },
