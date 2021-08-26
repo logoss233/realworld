@@ -19,8 +19,6 @@ export default ({store})=>{
     // 对请求错误做些什么  还没发出去时失败
     return Promise.reject(error)
   });
-  //响应拦截器
-
 }
 
 

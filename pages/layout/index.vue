@@ -61,7 +61,7 @@
         <nuxt-link class="logo-font" to="/">conduit</nuxt-link>
         <span class="attribution">
           An interactive learning project from
-          <a href="https://kaiwu.lagou.com/">lagou</a>. Code &amp; design
+          <a href="https://github.com/gothinkster/realworld">realworld</a>. Code &amp; design
           licensed under MIT.
         </span>
       </div>
